@@ -36,7 +36,9 @@ public class JWTUtils {
 
     /*Метод для генерации JWT токена на основе данных пользователя*/
     public String generateAccessToken(UserDetails userDetails) {
-        return buildToken(userDetails, new HashMap<>(), EXPIRATION_TIME);
+        HashMap<String, Object> claims = new HashMap<>();
+        claims.put("role", userDetails.getAuthorities().iterator().next().getAuthority());
+        return buildToken(userDetails, claims, EXPIRATION_TIME);
     }
 
     // Метод для генерации токена обновления (refresh token) с дополнительными данными

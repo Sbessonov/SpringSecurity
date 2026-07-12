@@ -2,9 +2,11 @@ package com.example.SpringSecurity.controller;
 
 import com.example.SpringSecurity.configuration.jwt.JWTUtils;
 import com.example.SpringSecurity.entity.UserEntity;
+import com.example.SpringSecurity.model.LoginRequest;
+import com.example.SpringSecurity.model.RefreshRequest;
+import com.example.SpringSecurity.model.RegisterRequest;
 import com.example.SpringSecurity.model.Role;
 import com.example.SpringSecurity.service.UserService;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +44,7 @@ public class AuthController {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
             // дабл чек
+            assert userDetails != null;
             if (!userDetails.isAccountNonLocked()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Account is locked");
             }
@@ -107,7 +110,7 @@ public class AuthController {
     }
 
     @GetMapping("/profile")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'SUPER_ADMIN')")
     public ResponseEntity<?> getProfile(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok("User: " + userDetails.getUsername() +
                 ", Role: " + userDetails.getAuthorities());
@@ -123,24 +126,5 @@ public class AuthController {
     @PreAuthorize("hasRole('MODERATOR')")
     public ResponseEntity<?> moderatorOnly() {
         return ResponseEntity.ok("Moderator smth");
-    }
-
-    // DTO классы
-    @Data
-    static class LoginRequest {
-        public String username;
-        public String password;
-    }
-
-    @Data
-    static class RefreshRequest {
-        public String refreshToken;
-    }
-
-    @Data
-    static class RegisterRequest {
-        public String username;
-        public String password;
-        public Role role; // опционально
     }
 }
